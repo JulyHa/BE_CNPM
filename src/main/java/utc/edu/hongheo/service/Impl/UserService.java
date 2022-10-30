@@ -104,4 +104,23 @@ public class UserService implements IUserService {
                 user.getPassword(), enable, accountNonExpired, credentialsNonExpired,
                 accountNonLocked, null);
     }
+
+    // Xóa
+    @Transactional
+    public UserDetails loadUserByUsername1(String username) {
+        User user = iUserRepo.findByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException(username);
+        }
+        if (this.checkLogin(user)) {
+            return UserPrinciple.build(user);
+        }
+        boolean enable = false;
+        boolean accountNonExpired = false;
+        boolean credentialsNonExpired = false;
+        boolean accountNonLocked = false;
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                user.getPassword(), enable, accountNonExpired, credentialsNonExpired,
+                accountNonLocked, null);
+    }
 }
