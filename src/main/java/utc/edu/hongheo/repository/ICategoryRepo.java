@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.PathVariable;
 import utc.edu.hongheo.model.Category;
 
 import java.util.List;
@@ -14,6 +13,6 @@ public interface ICategoryRepo extends JpaRepository<Category, Long> {
     Iterable<Category> findAllByUserId(Long id);
 
     @Modifying
-    @Query(value = "select * from category where status = :num and user_id = :id", nativeQuery = true)
+    @Query("select e from Category e where e.status = ?1 and e.user.id = ?2")
     List<Category> findAllByStatus(int num, Long id);
 }
