@@ -13,7 +13,6 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JwtResponse {
-
     private Long id;
 
     private String token;
@@ -23,4 +22,11 @@ public class JwtResponse {
     private String username;
 
     private Collection<? extends GrantedAuthority> roles;
+
+    public JwtResponse(String accessToken, Long id, String username, Collection<? extends GrantedAuthority> roles) {
+        this.token = accessToken;
+        this.username = username;
+        this.roles = roles;
+        this.id = id;
+    }
 }

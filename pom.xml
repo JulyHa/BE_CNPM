@@ -76,6 +76,13 @@
         </dependency>
 
 
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-web-services &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-web-services</artifactId>-->
+<!--        </dependency>-->
+
+
 
 
     </dependencies>
