@@ -1,7 +1,7 @@
-package utc.edu.hongheo.security;
-
-
-import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
-
-public class SecurityInit extends AbstractSecurityWebApplicationInitializer {
-}
+//package utc.edu.hongheo.security;
+//
+//
+//import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
+//
+//public class SecurityInit extends AbstractSecurityWebApplicationInitializer {
+//}

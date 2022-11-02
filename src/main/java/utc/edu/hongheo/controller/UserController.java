@@ -137,8 +137,6 @@ public class UserController {
         oldPass.setUser(user);
         user.setId(userOptional.get().getId());
         user.setUsername(userOptional.get().getUsername());
-//        user.setEnabled(userOptional.get().isEnabled());
-//        user.setRoles(userOptional.get().getRoles());
         user.setAvatar(userOptional.get().getAvatar());
         user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

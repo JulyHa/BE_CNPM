@@ -25,7 +25,7 @@ public class CategoryController {
     @GetMapping("{id}")
     public ResponseEntity<Category> findById(@PathVariable Long id){
         Optional<Category> categoryOptional = categoryService.findById(id);
-        if(!categoryOptional.isPresent()){// Tìm hiểu thêm
+        if(!categoryOptional.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(categoryOptional.get(), HttpStatus.OK);
