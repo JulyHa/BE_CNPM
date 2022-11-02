@@ -57,7 +57,7 @@ public class UserService implements IUserService {
         for (User u : users){
             if(u.getUsername().equals(user.getUsername())
                     && u.getPassword().equals(user.getPassword())
-                    && u.isEnable()){
+                    && u.isEnabled()){
                 return true;
 
             }

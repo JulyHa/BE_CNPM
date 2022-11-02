@@ -39,9 +39,9 @@ public class User implements Serializable {
 
     private int age;
 
-    private int gender;
+    private int sex;
 
-    private boolean enable = true;
+    private boolean enabled = true;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role",

@@ -17,7 +17,7 @@ public class JwtResponse {
 
     private String token;
 
-    private String type = "Bearer";
+    private String type = "Bearer your.jwt.token";
 
     private String username;
 

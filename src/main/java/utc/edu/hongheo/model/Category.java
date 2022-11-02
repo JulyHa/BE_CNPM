@@ -23,7 +23,7 @@ public class Category {
 
     private String color;
 
-    private boolean status;
+    private int status;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

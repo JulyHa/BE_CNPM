@@ -51,7 +51,7 @@ public class UserController {
     @Autowired
     private OldPasswordService oldPasswordService;
 
-    @GetMapping("users")
+    @GetMapping("/users")
     public ResponseEntity<Iterable<User>> showAllUser(){
         Iterable<User> users = userService.findAll();
         return new ResponseEntity<>(users,HttpStatus.OK);
@@ -112,11 +112,6 @@ public class UserController {
         return ResponseEntity.ok(new JwtResponse(jwt, currentUser.getId(), userDetails.getUsername(), userDetails.getAuthorities()));
     }
 
-    @GetMapping("/hello")
-    public ResponseEntity<String> hello(){
-        return new ResponseEntity("Hello World", HttpStatus.OK);
-    }
-
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getProfile(@PathVariable Long id) {
         Optional<User> userOptional = this.userService.findById(id);
@@ -142,15 +137,15 @@ public class UserController {
         oldPass.setUser(user);
         user.setId(userOptional.get().getId());
         user.setUsername(userOptional.get().getUsername());
-        user.setEnable(userOptional.get().isEnable());
-        user.setRoles(userOptional.get().getRoles());
+//        user.setEnabled(userOptional.get().isEnabled());
+//        user.setRoles(userOptional.get().getRoles());
         user.setAvatar(userOptional.get().getAvatar());
-        user.setEnable(true);
+        user.setEnabled(true);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setPassword(passwordEncoder.encode(user.getConfirmPassword()));
+        user.setConfirmPassword(passwordEncoder.encode(user.getConfirmPassword()));
         user.setEmail(userOptional.get().getEmail());
         user.setAddress(userOptional.get().getAddress());
-        user.setGender(userOptional.get().getGender());
+        user.setSex(userOptional.get().getSex());
         user.setAge(userOptional.get().getAge());
         user.setRoles(userOptional.get().getRoles());
         userService.save(user);

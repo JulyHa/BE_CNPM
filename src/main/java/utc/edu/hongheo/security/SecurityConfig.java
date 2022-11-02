@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,11 +27,9 @@ import utc.edu.hongheo.service.Impl.UserService;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
-    public IUserService IUserService() {
-
+    public IUserService iUserService() {
         return new UserService();
     }
-
     @Autowired
     private IUserService iUserService;
 
@@ -62,18 +61,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder(10);
     }
 
-
-//    @Autowired
-//    public void configureGlobalSecurity(AuthenticationManagerBuilder auth) throws Exception {
-//        auth.userDetailsService(iUserService).passwordEncoder(passwordEncoder());
-//    }
+    @Override
+    public void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.userDetailsService(iUserService).passwordEncoder(passwordEncoder());
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().ignoringAntMatchers("/**");
         http.httpBasic().authenticationEntryPoint(restServicesEntryPoint());
         http.authorizeRequests()
-                .antMatchers("/login", "/register", "/hello", "/categories/**", "/wallets/**" , "/transactions/**", "/oauth/**","/users/**").permitAll()
+                .antMatchers( "/login","/register", "/categories/**", "/wallets/**" , "/transactions/**","/users/**").permitAll()
                 .antMatchers().access("hasRole('ROLE_USER')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
 //                .antMatchers(HttpMethod.GET
