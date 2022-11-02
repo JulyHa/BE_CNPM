@@ -49,12 +49,30 @@ public class TransactionController {
 
     @PutMapping("{id}")
     public ResponseEntity<Transaction> update(@PathVariable Long id, @RequestBody Transaction transaction){
-        Optional<Transaction> t = transactionService.findById(id);
-        if(!t.isPresent()){
+
+        Optional<Transaction> editTransaction = transactionService.findById(id);
+        if(!editTransaction.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<Wallet> wallet = walletService.findById(editTransaction.get().getWallet().getId());
+        if(!wallet.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         transaction.setId(id);
-        return new ResponseEntity<>(transactionService.save(transaction), HttpStatus.OK);
+        int oldTransaction = editTransaction.get().getCategory().getStatus();
+        int newTransaction = transaction.getCategory().getStatus();
+        if ((oldTransaction == 1) && (newTransaction == 1)) {
+            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - editTransaction.get().getTotalSpent() + transaction.getTotalSpent() );
+        } else if ((oldTransaction == 1) && (newTransaction == 2)) {
+            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - editTransaction.get().getTotalSpent() - transaction.getTotalSpent());
+        } else if ((oldTransaction == 2) && (newTransaction == 1)) {
+            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + editTransaction.get().getTotalSpent() + transaction.getTotalSpent());
+        } else {
+            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + editTransaction.get().getTotalSpent() - transaction.getTotalSpent());
+        }
+        transactionService.save(transaction);
+        walletService.save(wallet.get());
+        return new ResponseEntity<>(HttpStatus.OK);
 
     }
 
@@ -77,28 +95,6 @@ public class TransactionController {
             wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - transaction.getTotalSpent());
             walletService.save(wallet.get());
         }
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Optional<Transaction>> updateTransaction(@PathVariable Long id, @RequestBody Transaction transaction) {
-        Optional<Transaction> editTransaction = transactionService.findById(id);
-        Optional<Wallet> wallet = walletService.findById(editTransaction.get().getWallet().getId());
-        transaction.setId(id);
-        int oldTransaction = editTransaction.get().getCategory().getStatus();
-        int newTransaction = transaction.getCategory().getStatus();
-        wallet.get().setId(wallet.get().getId());
-        if ((oldTransaction == 1) && (newTransaction == 1)) {
-            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - editTransaction.get().getTotalSpent() + transaction.getTotalSpent());
-        } else if ((oldTransaction == 1) && (newTransaction == 2)) {
-            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - editTransaction.get().getTotalSpent() - transaction.getTotalSpent());
-        } else if ((oldTransaction == 2) && (newTransaction == 1)) {
-            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + editTransaction.get().getTotalSpent() + transaction.getTotalSpent());
-        } else {
-            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + editTransaction.get().getTotalSpent() - transaction.getTotalSpent());
-        }
-        transactionService.save(transaction);
-        walletService.save(wallet.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -138,12 +134,6 @@ public class TransactionController {
         String month = String.valueOf(YearMonth.now());
         return new ResponseEntity<>(transactionService.findAllByTimeMonthAndYear(status, month, id), HttpStatus.OK);
     }
-
-//    @GetMapping("find-all-by-time2")
-//    public ResponseEntity<Iterable<Transaction>> findAllByMonthTimeAndYearTime(@RequestParam("id") int id) {
-//        String month = String.valueOf(YearMonth.now());
-//        return new ResponseEntity<>(transactionService.findAllByTimeMonthAndYear(2, month, id), HttpStatus.OK);
-//    }
 
     @GetMapping("/find-all-income-6month/{id}")
     public ResponseEntity<HashMap<Integer, Iterable<Transaction>>> findAllTransactionsIncomeFor6Months(@PathVariable Long id) {
