@@ -3,7 +3,9 @@ package utc.edu.hongheo.service.Impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import utc.edu.hongheo.model.Transaction;
+import utc.edu.hongheo.model.Wallet;
 import utc.edu.hongheo.repository.ITransactionRepo;
+import utc.edu.hongheo.repository.IWalletRepo;
 import utc.edu.hongheo.service.ITransactionService;
 
 import java.util.Optional;
@@ -12,10 +14,24 @@ import java.util.Optional;
 public class TransactionService implements ITransactionService {
     @Autowired
     private ITransactionRepo iTransactionRepo;
+    @Autowired
+    private IWalletRepo iWalletRepo;
 
     @Override
     public Transaction save(Transaction transaction) {
-        return iTransactionRepo.save(transaction);
+        if (transaction.getTotalSpent() > 0 && !transaction.getTime().isEmpty()
+                && transaction.getCategory().getId() > 0) {
+            Optional<Wallet> wallet = iWalletRepo.findById(transaction.getWallet().getId());
+            int newTransaction = transaction.getCategory().getStatus();
+            wallet.get().setId(wallet.get().getId());
+            if (newTransaction == 1) {
+                wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + transaction.getTotalSpent());
+            } else if (newTransaction == 2) {
+                wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - transaction.getTotalSpent());
+            }
+            return iTransactionRepo.save(transaction);
+        }
+        return null;
     }
 
     @Override

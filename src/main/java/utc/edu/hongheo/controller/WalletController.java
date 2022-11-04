@@ -51,15 +51,10 @@ public class WalletController {
         return new ResponseEntity<>(walletService.save(wallet), HttpStatus.OK);
     }
 
-    @PutMapping("/delete/{id}")
-    public ResponseEntity<Wallet> delete(@PathVariable Long id, @RequestBody Wallet wallet){
-        Optional<Wallet> optionalWallet = walletService.findById(id);
-        if(!optionalWallet.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        wallet.setId(id);
-        wallet.setStatus(0);
-        return new ResponseEntity<>(walletService.save(wallet), HttpStatus.OK);
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Boolean> delete(@PathVariable Long id){
+
+        return new ResponseEntity<>(walletService.deleteWallet(id), HttpStatus.OK);
     }
 
     @GetMapping("/history/{id}")

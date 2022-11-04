@@ -9,4 +9,6 @@ public interface IWalletService extends IService<Wallet> {
     Iterable<Wallet> findAllByStatusPublicAndUserId(@Param("id") Long id);
 
     Iterable<Wallet> findAllByStatusPrivateAndUserId(@Param("id") Long id);
+
+    boolean deleteWallet(Long id);
 }

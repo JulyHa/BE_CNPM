@@ -9,7 +9,7 @@ import utc.edu.hongheo.model.Transaction;
 
 @Repository
 public interface ITransactionRepo extends JpaRepository<Transaction, Long> {
-    @Query("select category from Category category where category.id = ?1")
+    @Query("select t from Transaction t where t.category.id = ?1")
     Iterable<Transaction> findAllByCategoryId(Long id);
 
     @Query("select t from Transaction t where t.wallet.id = ?1 order by t.id DESC")

@@ -47,17 +47,6 @@ public class TransactionController {
         return new ResponseEntity<>(transactionService.save(transaction), HttpStatus.OK);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Transaction> update(@PathVariable Long id, @RequestBody Transaction transaction){
-        Optional<Transaction> t = transactionService.findById(id);
-        if(!t.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        transaction.setId(id);
-        return new ResponseEntity<>(transactionService.save(transaction), HttpStatus.OK);
-
-    }
-
     @PostMapping("/create")
     public ResponseEntity<Optional<Transaction>> createTransaction(@RequestBody Transaction transaction){
         Optional<Wallet> wallet = walletService.findById(transaction.getWallet().getId());
@@ -69,15 +58,18 @@ public class TransactionController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         transaction.getCategory().setStatus(category.get().getStatus());
-        transactionService.save(transaction);
-        if (transaction.getCategory().getStatus() == 1) {
-            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + transaction.getTotalSpent());
-            walletService.save(wallet.get());
-        } else {
-            wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - transaction.getTotalSpent());
-            walletService.save(wallet.get());
+        Transaction entity = transactionService.save(transaction);
+        if(entity != null) {
+            if (transaction.getCategory().getStatus() == 1) {
+                wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + transaction.getTotalSpent());
+                walletService.save(wallet.get());
+            } else {
+                wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - transaction.getTotalSpent());
+                walletService.save(wallet.get());
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @PutMapping("/update/{id}")
@@ -97,7 +89,9 @@ public class TransactionController {
         } else {
             wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + editTransaction.get().getTotalSpent() - transaction.getTotalSpent());
         }
-        transactionService.save(transaction);
+        if(transactionService.save(transaction) == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         walletService.save(wallet.get());
         return new ResponseEntity<>(HttpStatus.OK);
     }

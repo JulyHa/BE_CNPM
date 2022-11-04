@@ -8,6 +8,6 @@ import utc.edu.hongheo.model.OldPassword;
 
 @Repository
 public interface IOldPasswordRepo extends JpaRepository<OldPassword, Long> {
-    @Query(value = "select e from OldPassword e where e.user.id = ?1 order by e.id DESC limit 3",  nativeQuery = true)
+    @Query(value = "select * from old_password where user_id = :id order by id DESC limit 3",  nativeQuery = true)
     Iterable<OldPassword> findAllByUserIdTop3OldPassword(@PathVariable Long id);
 }
