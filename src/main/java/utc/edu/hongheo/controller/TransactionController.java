@@ -9,8 +9,8 @@ import utc.edu.hongheo.model.Category;
 import utc.edu.hongheo.model.Transaction;
 import utc.edu.hongheo.model.Wallet;
 import utc.edu.hongheo.service.ICategoryService;
-import utc.edu.hongheo.service.ITransactionService;
 import utc.edu.hongheo.service.IWalletService;
+import utc.edu.hongheo.service.Impl.TransactionService;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @RequestMapping("transactions")
 public class TransactionController {
     @Autowired
-    private ITransactionService transactionService;
+    private TransactionService transactionService;
 
     @Autowired
     private IWalletService walletService;
@@ -49,7 +49,6 @@ public class TransactionController {
 
     @PutMapping("{id}")
     public ResponseEntity<Transaction> update(@PathVariable Long id, @RequestBody Transaction transaction){
-
         Optional<Transaction> editTransaction = transactionService.findById(id);
         if(!editTransaction.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -58,7 +57,12 @@ public class TransactionController {
         if(!wallet.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        Optional<Category> category = categoryService.findById(transaction.getCategory().getId());
+        if(!category.isPresent()){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         transaction.setId(id);
+        transaction.setCategory(category.get());
         int oldTransaction = editTransaction.get().getCategory().getStatus();
         int newTransaction = transaction.getCategory().getStatus();
         if ((oldTransaction == 1) && (newTransaction == 1)) {
@@ -110,19 +114,19 @@ public class TransactionController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Transaction> removeTransaction(@PathVariable Long id) {
-        Optional<Transaction> transaction = transactionService.findById(id);
-        if(!transaction.isPresent()){
+        Optional<Transaction> transactionDel = transactionService.findById(id);
+        if(!transactionDel.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Optional<Wallet> editWallet = walletService.findById(transaction.get().getWallet().getId());
+        Optional<Wallet> editWallet = walletService.findById(transactionDel.get().getWallet().getId());
         if(!editWallet.isPresent()){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        editWallet.get().setId(transaction.get().getWallet().getId());
-        if (transaction.get().getCategory().getStatus() == 1) {
-            editWallet.get().setMoneyAmount(editWallet.get().getMoneyAmount() - transaction.get().getTotalSpent());
+        editWallet.get().setId(transactionDel.get().getWallet().getId());
+        if (transactionDel.get().getCategory().getStatus() == 1) {
+            editWallet.get().setMoneyAmount(editWallet.get().getMoneyAmount() - transactionDel.get().getTotalSpent());
         } else {
-            editWallet.get().setMoneyAmount(editWallet.get().getMoneyAmount() + transaction.get().getTotalSpent());
+            editWallet.get().setMoneyAmount(editWallet.get().getMoneyAmount() + transactionDel.get().getTotalSpent());
         }
         walletService.save(editWallet.get());
         transactionService.delete(id);
@@ -137,78 +141,12 @@ public class TransactionController {
 
     @GetMapping("/find-all-income-6month/{id}")
     public ResponseEntity<HashMap<Integer, Iterable<Transaction>>> findAllTransactionsIncomeFor6Months(@PathVariable Long id) {
-        HashMap<Integer, Iterable<Transaction>> transactionIncome = new HashMap<>();
-        String presentTime = String.valueOf(java.time.LocalDate.now());
-        String[] time = presentTime.split("-");
-        int firstYear = Integer.parseInt(time[0]);
-        int firstMonth = Integer.parseInt(time[1]);
-        int firstDay = Integer.parseInt(time[2]) - Integer.parseInt(time[2]) + 1;
-        String currentMonth;
-        if (firstMonth < 10) {
-            currentMonth = firstYear + "-0" + firstMonth + "-0" + firstDay;
-        } else {
-            currentMonth = firstYear + "-" + firstMonth + "-0" + firstDay;
-        }
-        transactionIncome.put(firstMonth, transactionService.findAllTransactionsIncomeFor6Months(id, presentTime, currentMonth));
-        firstDay = 31;
-        for (int i = 1; i < 6; i++) {
-            String timeNow;
-            String nextTime;
-            int day = 1;
-            firstMonth = Integer.parseInt(time[1]) - i;
-            if (firstMonth < 1) {
-                firstMonth = 12;
-                firstYear = firstYear - 1;
-            }
-            if (firstMonth < 10) {
-                timeNow = firstYear + "-0" + firstMonth + "-" + firstDay;
-                nextTime = firstYear + "-0" + firstMonth + "-0" + day;
-            } else {
-                timeNow = firstYear + "-" + firstMonth + "-" + firstDay;
-                nextTime = firstYear + "-" + firstMonth + "-0" + day;
-            }
-            transactionIncome.put(firstMonth, transactionService.findAllTransactionsIncomeFor6Months(id, timeNow, nextTime));
-        }
-        System.out.println(transactionIncome);
-        return new ResponseEntity<>(transactionIncome, HttpStatus.OK);
+        return new ResponseEntity<>(transactionService.transactionsIncomeFor6Months(id, 1), HttpStatus.OK);
     }
 
     @GetMapping("/find-all-expense-6month/{id}")
     public ResponseEntity<HashMap<Integer, Iterable<Transaction>>> findAllTransactionsExpenseFor6Months(@PathVariable Long id) {
-        HashMap<Integer, Iterable<Transaction>> transactionExpense = new HashMap<>();
-        String presentTime = String.valueOf(java.time.LocalDate.now());
-        String[] time = presentTime.split("-");
-        int firstYear = Integer.parseInt(time[0]);
-        int firstMonth = Integer.parseInt(time[1]);
-        int firstDay = Integer.parseInt(time[2]) - Integer.parseInt(time[2]) + 1;
-        String currentMonth;
-        if (firstMonth < 10) {
-            currentMonth = firstYear + "-0" + firstMonth + "-0" + firstDay;
-        } else {
-            currentMonth = firstYear + "-" + firstMonth + "-0" + firstDay;
-        }
-        transactionExpense.put(firstMonth, transactionService.findAllTransactionsExpenseFor6Months(id, presentTime, currentMonth));
-        firstDay = 31;
-        for (int i = 1; i < 6; i++) {
-            String timeNow;
-            String nextTime;
-            int day = 1;
-            firstMonth = Integer.parseInt(time[1]) - i;
-            if (firstMonth < 1) {
-                firstMonth = 12;
-                firstYear = firstYear - 1;
-            }
-            if (firstMonth < 10) {
-                timeNow = firstYear + "-0" + firstMonth + "-" + firstDay;
-                nextTime = firstYear + "-0" + firstMonth + "-0" + day;
-            } else {
-                timeNow = firstYear + "-" + firstMonth + "-" + firstDay;
-                nextTime = firstYear + "-" + firstMonth + "-0" + day;
-            }
-            transactionExpense.put(firstMonth, transactionService.findAllTransactionsExpenseFor6Months(id, timeNow, nextTime));
-        }
-        System.out.println(transactionExpense);
-        return new ResponseEntity<>(transactionExpense, HttpStatus.OK);
+        return new ResponseEntity<>(transactionService.transactionsIncomeFor6Months(id, 2), HttpStatus.OK);
     }
 
     @GetMapping("find-all-transaction")

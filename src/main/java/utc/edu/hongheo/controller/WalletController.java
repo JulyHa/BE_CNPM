@@ -30,10 +30,7 @@ public class WalletController {
     @GetMapping("{id}")
     public ResponseEntity<Wallet> findById(@PathVariable Long id){
         Optional<Wallet> wallet = walletService.findById(id);
-        if(!wallet.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(wallet.get(), HttpStatus.OK);
+        return wallet.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
@@ -45,9 +42,31 @@ public class WalletController {
     public ResponseEntity<Wallet> update(@PathVariable Long id, @RequestBody Wallet wallet){
         Optional<Wallet> optionalWallet = walletService.findById(id);
         if(!optionalWallet.isPresent()){
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.OK);
         }
         wallet.setId(id);
+        if(optionalWallet.get().getMoneyType().getId().equals(wallet.getMoneyType().getId())){
+            return new ResponseEntity<>(walletService.save(wallet), HttpStatus.OK);
+        }
+        Iterable<Transaction> transactions = transactionService.findAllByWallet(id);
+        if (optionalWallet.get().getMoneyType().getId() == 1) {
+            wallet.setMoneyAmount(Math.ceil((optionalWallet.get().getMoneyAmount() / 23000) * 100) / 100);
+        } else {
+            wallet.setMoneyAmount(Math.ceil((optionalWallet.get().getMoneyAmount() * 23000) * 100) / 100);
+        }
+        for (Transaction transaction : transactions) {
+            transaction.setId(transaction.getId());
+            if (optionalWallet.get().getMoneyType().getId() == 1) {
+                transaction.setTotalSpent(Math.ceil((transaction.getTotalSpent() / 23000) * 100) / 100);
+            } else {
+                transaction.setTotalSpent(Math.ceil((transaction.getTotalSpent() * 23000) * 100) / 100);
+            }
+            transactionService.save(transaction);
+        }
+        wallet.setIcon(optionalWallet.get().getIcon());
+        wallet.setName(optionalWallet.get().getName());
+        wallet.setUser(optionalWallet.get().getUser());
+        wallet.setStatus(optionalWallet.get().getStatus());
         return new ResponseEntity<>(walletService.save(wallet), HttpStatus.OK);
     }
 
@@ -91,8 +110,8 @@ public class WalletController {
             else {
                 wallet.setMoneyAmount(Math.ceil((optionalWallet.get().getMoneyAmount() * 23000) * 100) / 100);
             }
+
             for (Transaction transaction : transactions){
-                transaction.setId(transaction.getId());
                 if(optionalWallet.get().getMoneyType().getId() == 1){
                     transaction.setTotalSpent(Math.ceil((transaction.getTotalSpent() / 23000) * 100) / 100);
                 }

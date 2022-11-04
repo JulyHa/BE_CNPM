@@ -41,9 +41,7 @@ public interface ITransactionRepo extends JpaRepository<Transaction, Long> {
             "where u.id = ?1 and t.category.id = 2")
     Iterable<Transaction> findAllByCategoryExpenseUserId(@PathVariable Long id);
 
-    @Query("select t.id, t.note, t.time, t.totalSpent,t.category.id, t.wallet.id\n" +
-            "from Transaction t\n" +
-            "where t.wallet.id = ?1")
+    @Query(value = "select * from transaction where wallet_id=? order by id DESC", nativeQuery = true)
     Iterable<Transaction> findAllByWallet(@PathVariable Long id);
 
 //    @Query("select t.id, t.note, t.time, t.totalSpent, t.wallet.id, t.category.id \n" +
@@ -60,13 +58,13 @@ public interface ITransactionRepo extends JpaRepository<Transaction, Long> {
     @Query(value = "select * from transaction t\n" +
             "join wallet w on t.wallet_id = w.id\n" +
             "join category c on c.id = t.category_id\n" +
-            "where t.time >= :sixMonthsAgo and time<= :presentTime and w.id = :id and c.status = 1",nativeQuery = true)
-    Iterable<Transaction>findAllTransactionsIncomeFor6Months(@PathVariable Long id, @Param("presentTime") String presentTime, @Param("sixMonthsAgo") String sixMonthsAgo);
-    @Query(value = "select * from transaction t\n" +
-            "join wallet w on t.wallet_id = w.id\n" +
-            "join category c on c.id = t.category_id\n" +
-            "where t.time >= :sixMonthsAgo and time<= :presentTime and w.id = :id and c.status = 2",nativeQuery = true)
-    Iterable<Transaction>findAllTransactionsExpenseFor6Months(@PathVariable Long id, @Param("presentTime") String presentTime, @Param("sixMonthsAgo") String sixMonthsAgo);
+            "where t.time >= :sixMonthsAgo and time<= :presentTime and w.id = :id and c.status = :status",nativeQuery = true)
+    Iterable<Transaction>findAllTransactionsIEFor6Months(@PathVariable Long id, @Param("presentTime") String presentTime, @Param("sixMonthsAgo") String sixMonthsAgo, @Param("status") int status);
+//    @Query(value = "select * from transaction t\n" +
+//            "join wallet w on t.wallet_id = w.id\n" +
+//            "join category c on c.id = t.category_id\n" +
+//            "where t.time >= :sixMonthsAgo and time<= :presentTime and w.id = :id and c.status = 2",nativeQuery = true)
+//    Iterable<Transaction>findAllTransactionsExpenseFor6Months(@PathVariable Long id, @Param("presentTime") String presentTime, @Param("sixMonthsAgo") String sixMonthsAgo);
 
     @Query(value = "select transaction.id, transaction.note,transaction.total_spent,category_id,wallet_id,transaction.time\n" +
             "from transaction join category c on c.id = transaction.category_id\n" +

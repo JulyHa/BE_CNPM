@@ -6,6 +6,7 @@ import utc.edu.hongheo.model.Transaction;
 import utc.edu.hongheo.repository.ITransactionRepo;
 import utc.edu.hongheo.service.ITransactionService;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 @Service
@@ -53,15 +54,54 @@ public class TransactionService implements ITransactionService {
         return iTransactionRepo.findAllByTimeMonthAndYear(status, month, id);
     }
 
+    public HashMap<Integer, Iterable<Transaction>> transactionsIncomeFor6Months(Long id, int status){
+        HashMap<Integer, Iterable<Transaction>> transactionIE = new HashMap<>();
+        String presentTime = String.valueOf(java.time.LocalDate.now());
+        String[] time = presentTime.split("-");
+        int firstYear = Integer.parseInt(time[0]);
+        int firstMonth = Integer.parseInt(time[1]);
+        int firstDay = Integer.parseInt(time[2]) - Integer.parseInt(time[2]) + 1;
+        String currentMonth;
+        if (firstMonth < 10) {
+            currentMonth = firstYear + "-0" + firstMonth + "-0" + firstDay;
+        } else {
+            currentMonth = firstYear + "-" + firstMonth + "-0" + firstDay;
+        }
+        transactionIE.put(firstMonth, findAllTransactionsIEFor6Months(id, presentTime, currentMonth, status));
+
+
+        firstDay = 31;
+        for (int i = 1; i < 6; i++) {
+            String timeNow;
+            String nextTime;
+            int day = 1;
+            firstMonth = Integer.parseInt(time[1]) - i;
+            if (firstMonth < 1) {
+                firstMonth = 12;
+                firstYear = firstYear - 1;
+            }
+            if (firstMonth < 10) {
+                timeNow = firstYear + "-0" + firstMonth + "-" + firstDay;
+                nextTime = firstYear + "-0" + firstMonth + "-0" + day;
+            } else {
+                timeNow = firstYear + "-" + firstMonth + "-" + firstDay;
+                nextTime = firstYear + "-" + firstMonth + "-0" + day;
+            }
+            transactionIE.put(firstMonth, findAllTransactionsIEFor6Months(id, timeNow, nextTime, status));
+
+
+        }
+        return transactionIE;
+    }
     @Override
-    public Iterable<Transaction> findAllTransactionsIncomeFor6Months(Long id, String presentTime, String sixMonthsAgo) {
-        return iTransactionRepo.findAllTransactionsIncomeFor6Months(id, presentTime, sixMonthsAgo);
+    public Iterable<Transaction> findAllTransactionsIEFor6Months(Long id, String presentTime, String sixMonthsAgo, int status) {
+        return iTransactionRepo.findAllTransactionsIEFor6Months(id, presentTime, sixMonthsAgo, status);
     }
 
-    @Override
-    public Iterable<Transaction> findAllTransactionsExpenseFor6Months(Long id, String presentTime, String sixMonthsAgo) {
-        return iTransactionRepo.findAllTransactionsExpenseFor6Months(id, presentTime, sixMonthsAgo);
-    }
+//    @Override
+//    public Iterable<Transaction> findAllTransactionsExpenseFor6Months(Long id, String presentTime, String sixMonthsAgo) {
+//        return iTransactionRepo.findAllTransactionsIEFor6Months(id, presentTime, sixMonthsAgo);
+//    }
 
     @Override
     public Iterable<Transaction> findAllByTransaction(String startTime, String endTime, int status, Long from, Long to, Long id) {

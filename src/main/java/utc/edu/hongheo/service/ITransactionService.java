@@ -12,9 +12,9 @@ public interface ITransactionService extends IService<Transaction> {
 
     Iterable<Transaction> findAllByTimeMonthAndYear(int status, String month, int id);
 
-    Iterable<Transaction>findAllTransactionsIncomeFor6Months(Long id, String presentTime, String sixMonthsAgo);
+    Iterable<Transaction>findAllTransactionsIEFor6Months(Long id, String presentTime, String sixMonthsAgo, int status);
 
-    Iterable<Transaction>findAllTransactionsExpenseFor6Months(Long id, String presentTime, String sixMonthsAgo);
+//    Iterable<Transaction>findAllTransactionsExpenseFor6Months(Long id, String presentTime, String sixMonthsAgo);
 
     Iterable<Transaction>findAllByTransaction(String startTime,String endTime,int status,Long from,Long to,Long id);
 }
