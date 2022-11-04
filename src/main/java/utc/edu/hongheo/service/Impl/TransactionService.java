@@ -23,7 +23,7 @@ public class TransactionService implements ITransactionService {
                 && transaction.getCategory().getId() > 0) {
             Optional<Wallet> wallet = iWalletRepo.findById(transaction.getWallet().getId());
             int newTransaction = transaction.getCategory().getStatus();
-            wallet.get().setId(wallet.get().getId());
+            if(!wallet.isPresent()) return null;
             if (newTransaction == 1) {
                 wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + transaction.getTotalSpent());
             } else if (newTransaction == 2) {

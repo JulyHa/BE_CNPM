@@ -70,6 +70,7 @@ public class WalletController {
     @PutMapping("/edit-money-type/{id}")
     public ResponseEntity<Wallet> updateWallet(@PathVariable Long id, @RequestBody Wallet wallet){
         Optional<Wallet> optionalWallet =walletService.findById(id);
+//        MoneyType =
         if(!optionalWallet.isPresent()){
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -110,13 +111,13 @@ public class WalletController {
         if (!walletOptional.isPresent()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        wallet.setId(id);
-        if (wallet.getStatus() == 1) {
-            wallet.setStatus(2);
+//        wallet.setId(id);
+        if (walletOptional.get().getStatus() == 1) {
+            walletOptional.get().setStatus(2);
         }
-        if (wallet.getStatus() == 2) {
-            wallet.setStatus(1);
+        else if (walletOptional.get().getStatus() == 2) {
+            walletOptional.get().setStatus(1);
         }
-        return new ResponseEntity<>(walletService.save(wallet), HttpStatus.OK);
+        return new ResponseEntity<>(walletService.save(walletOptional.get()), HttpStatus.OK);
     }
 }

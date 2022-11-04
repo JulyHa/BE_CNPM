@@ -41,15 +41,9 @@ public interface ITransactionRepo extends JpaRepository<Transaction, Long> {
             "where u.id = ?1 and t.category.id = 2")
     Iterable<Transaction> findAllByCategoryExpenseUserId(@PathVariable Long id);
 
-    @Query("select t.id, t.note, t.time, t.totalSpent,t.category.id, t.wallet.id\n" +
-            "from Transaction t\n" +
-            "where t.wallet.id = ?1")
+    @Query(value = "select * from transaction where wallet_id=? order by id DESC", nativeQuery = true)
     Iterable<Transaction> findAllByWallet(@PathVariable Long id);
 
-//    @Query("select t.id, t.note, t.time, t.totalSpent, t.wallet.id, t.category.id \n" +
-//            "from Transaction t join Category c on c.id = t.category.id \n" +
-//            "where c.status = ?1 \n" +
-//            "and t.time like concat('%',?2, '%') and t.wallet.id  = ?3")
         @Query(value = "select t.id, t.note, t.time, t.total_spent, t.wallet_id, t.category_id\n" +
         "from transaction t\n" +
         "         join category c on c.id = t.category_id\n" +

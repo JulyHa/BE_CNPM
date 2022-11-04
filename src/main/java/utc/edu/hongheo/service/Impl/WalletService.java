@@ -16,8 +16,8 @@ public class WalletService implements IWalletService {
 
     @Override
     public Wallet save(Wallet wallet) {
-        if (iWalletRepo.findWalletByName(wallet.getName(), wallet.getUser().getId()) != null)
-            return null;
+//        if (iWalletRepo.findWalletByName(wallet.getName(), wallet.getUser().getId()) != null)
+//            if()return null;
         return iWalletRepo.save(wallet);
     }
 

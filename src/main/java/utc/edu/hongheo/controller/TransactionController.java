@@ -60,13 +60,6 @@ public class TransactionController {
         transaction.getCategory().setStatus(category.get().getStatus());
         Transaction entity = transactionService.save(transaction);
         if(entity != null) {
-            if (transaction.getCategory().getStatus() == 1) {
-                wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() + transaction.getTotalSpent());
-                walletService.save(wallet.get());
-            } else {
-                wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - transaction.getTotalSpent());
-                walletService.save(wallet.get());
-            }
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -75,10 +68,16 @@ public class TransactionController {
     @PutMapping("/update/{id}")
     public ResponseEntity<Optional<Transaction>> updateTransaction(@PathVariable Long id, @RequestBody Transaction transaction) {
         Optional<Transaction> editTransaction = transactionService.findById(id);
+        if(!editTransaction.isPresent()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         Optional<Wallet> wallet = walletService.findById(editTransaction.get().getWallet().getId());
         transaction.setId(id);
         int oldTransaction = editTransaction.get().getCategory().getStatus();
-        int newTransaction = transaction.getCategory().getStatus();
+        int newTransaction = categoryService.findById(transaction.getCategory().getId()).get().getStatus();
+        if(!wallet.isPresent()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
         wallet.get().setId(wallet.get().getId());
         if ((oldTransaction == 1) && (newTransaction == 1)) {
             wallet.get().setMoneyAmount(wallet.get().getMoneyAmount() - editTransaction.get().getTotalSpent() + transaction.getTotalSpent());
