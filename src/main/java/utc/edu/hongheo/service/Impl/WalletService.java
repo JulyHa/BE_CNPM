@@ -16,6 +16,8 @@ public class WalletService implements IWalletService {
 
     @Override
     public Wallet save(Wallet wallet) {
+        if (iWalletRepo.findWalletByName(wallet.getName(), wallet.getUser().getId()) != null)
+            return null;
         return iWalletRepo.save(wallet);
     }
 
@@ -32,6 +34,16 @@ public class WalletService implements IWalletService {
     @Override
     public void delete(Long id) {
         iWalletRepo.deleteById(id);
+    }
+
+    @Override
+    public boolean deleteWallet(Long id) {
+        Optional<Wallet> optionalWallet = iWalletRepo.findById(id);
+        if (!optionalWallet.isPresent()) {
+            return false;
+        }
+        iWalletRepo.deleteById(id);
+        return true;
     }
 
     @Override

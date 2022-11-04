@@ -15,7 +15,13 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Category save(Category category) {
-        return categoryRepo.save(category);
+        if (category.getName() != null &&  category.getStatus() > 0) {
+            Optional<Category> check = categoryRepo.findByColor(category.getColor(), category.getUser().getId());
+            if(!check.isPresent())  {
+                return categoryRepo.save(category);
+            }
+        }
+        return null;
     }
 
     @Override

@@ -6,7 +6,10 @@ import utc.edu.hongheo.model.OldPassword;
 import utc.edu.hongheo.repository.IOldPasswordRepo;
 import utc.edu.hongheo.service.IOldPasswordService;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class OldPasswordService implements IOldPasswordService {

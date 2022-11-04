@@ -20,5 +20,8 @@ public interface IWalletRepo extends JpaRepository<Wallet, Long> {
 
     @Modifying
     @Query("select w from Wallet w where w.user.id = ?1 and (w.status = 1 or w.status = 2)")
-    Iterable<Wallet>findAllByStatus(@PathVariable Long id);
+    Iterable<Wallet> findAllByStatus(@PathVariable Long id);
+
+    @Query("select w from Wallet w where w.name = ?1 and w.user.id = ?2")
+    Wallet findWalletByName(@PathVariable String name, @Param("id") Long id);
 }

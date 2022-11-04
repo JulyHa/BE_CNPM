@@ -43,7 +43,11 @@ public class CategoryController {
 
     @PostMapping
     private ResponseEntity<Category> save(@RequestBody Category category){
-        return new ResponseEntity<>(categoryService.save(category), HttpStatus.OK);
+        if(categoryService.save(category) != null) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
     }
 
     @PutMapping("{id}")
